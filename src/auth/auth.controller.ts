@@ -12,10 +12,15 @@ import { AuthGuard } from './auth.guard';
 import { Request } from '@nestjs/common';
 import { Public } from './decorators/public.decorator';
 import { UserDto } from 'src/users/dto/users.dto';
+import { Roles } from './roles.decorator';
+import { UsersService } from 'src/users/users.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private userService: UsersService,
+  ) {}
 
   @Public()
   @HttpCode(HttpStatus.OK)
@@ -31,5 +36,12 @@ export class AuthController {
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;
+  }
+
+  @UseGuards(AuthGuard)
+  @Roles('admin')
+  @Get('users')
+  getAllUsers() {
+    return this.userService.getAll();
   }
 }
